@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+
+<html>
+<title>Kutpe KZ</title>
+<style>
+*{
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+}
+
+    .box{
+        height: 150%;
+        width: 150%;
+        justify-content: center;
+        background-color: #d5cdfc;
+        align-self: center;
+        -webkit-border-radius:10px;
+        padding: 20px;
+
+       
+
+    }
+    .bbox{
+        padding-top: 10%;
+        padding-left: 35%;
+        height: 40%;
+        width: 20%;
+       
+        
+    }
+
+    .dropbtn {
+  background-color: #6246EA;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  -webkit-border-radius:10px;
+  border: none;
+  cursor: pointer;
+  }
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 20px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown:hover .dropbtn {
+  background-color: #7a63eb;
+}
+.btn-group .button {
+  background-color: #6246EA; /* Green */
+  border: 1px solid #7a63eb;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  float: right;
+  
+}
+.btn-group{
+    width: 163%;
+    padding-top: 20px;
+}
+
+.btn-group .button:not(:last-child) {
+  border-right: none; /* Prevent double borders */
+}
+
+.btn-group .button:hover {
+  background-color: #7a63eb;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #6246EA;
+  height: 100%;
+}
+
+li {
+  float: right;
+  height: 70px;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  margin-top: 10px;
+  text-decoration: none;
+}
+
+li a:hover:not(.active) {
+  background-color: #7a63eb;
+}
+
+
+</style>
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-analytics.js";
+    import { getDatabase , ref} from "firebase/database";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtp86S0T2BNVUUdgjeDltaZEP1u2MsvHc",
+      authDomain: "kutpe-kz.firebaseapp.com",
+      databaseURL: "https://kutpe-kz-default-rtdb.firebaseio.com",
+      projectId: "kutpe-kz",
+      storageBucket: "kutpe-kz.appspot.com",
+      messagingSenderId: "760528812857",
+      appId: "1:760528812857:web:2fa9b7ccdea76b6c9946e8",
+      measurementId: "G-1SR0FR7BFS"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
+            const db = getDatabase();
+            const carWashNames = ref(db, '/car-washes/' + 0 + '/name');
+            log(carWashNames);
+    </script>
+<body>
+  
+  <header>
+    <ul>
+      <li style="float:left"><a href="#home">Kutpe KZ</a></li>
+      <li><a href="#news">User</a></li>
+      <li><a href="#contact">Logout</a></li>
+     
+    </ul>
+    
+  </header>
+
+
+<section class="bbox">
+    <div class="dropdown">
+        <button class="dropbtn">Dropdown</button>
+        <div class="dropdown-content">
+        <a href="#">Link 1</a>
+        <a href="#">Link 2</a>
+        <a href="#">Link 3</a>
+        </div>
+      </div>
+    <div class="box">
+        <table>
+            <tr>
+                <th>Company</th>
+                <th>Contact</th>
+                <th>Country</th>
+              </tr>
+              <tr>
+                <td>Alfreds Futterkiste</td>
+                <td>Maria Anders</td>
+                <td>Germany</td>
+              </tr>
+              <tr>
+                <td>Centro comercial Moctezuma</td>
+                <td>Francisco Chang</td>
+                <td>Mexico</td>
+              </tr>
+              <tr>
+                <td>Alfreds Futterkiste</td>
+                <td>Maria Anders</td>
+                <td>Germany</td>
+              </tr>
+              <tr>
+                <td>Centro comercial Moctezuma</td>
+                <td>Francisco Chang</td>
+                <td>Mexico</td>
+              </tr>
+              <tr>
+                <td>Alfreds Futterkiste</td>
+                <td>Maria Anders</td>
+                <td>Germany</td>
+              </tr>
+              <tr>
+                <td>Centro comercial Moctezuma</td>
+                <td>Francisco Chang</td>
+                <td>Mexico</td>
+              </tr>
+              <tr>
+                <td>Alfreds Futterkiste</td>
+                <td>Maria Anders</td>
+                <td>Germany</td>
+              </tr>
+              <tr>
+                <td>Centro comercial Moctezuma</td>
+                <td>Francisco Chang</td>
+                <td>Mexico</td>
+              </tr>
+              <tr>
+                <td>Alfreds Futterkiste</td>
+                <td>Maria Anders</td>
+                <td>Germany</td>
+              </tr>
+              <tr>
+                <td>Centro comercial Moctezuma</td>
+                <td>Francisco Chang</td>
+                <td>Mexico</td>
+              </tr>
+        </table>
+        </div>
+        <div class="btn-group">
+            <button class="button">Button</button>
+            <button class="button">Button</button>
+        
+          </div>
+    </section>
+
+</body>
+</html>

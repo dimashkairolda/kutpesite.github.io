@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+    <header>
+        <style>
+      *{
+        margin: 0;
+        padding: 0;
+      }     
+
+/* Full-width inputs */
+input[type=text], input[type=password] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  
+}
+
+/* Set a style for all buttons */
+button {
+  background-image: linear-gradient(to right, #917AFD 0%, #917AFD  51%, #6246EA  100%);
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+           
+
+         
+}
+
+/* Add a hover effect for buttons */
+button:hover {
+  opacity: 0.8;
+}
+
+
+
+
+
+
+/* Add padding to containers */
+.container {
+  padding: 16px;
+  width: 200%;
+}
+
+/* The "Forgot password" text */
+span.psw {
+  float: right;
+}
+.flex-container {
+  display: flex;
+  
+  
+}
+.loginform{
+  padding-top: 25%;
+}
+.flex_child{
+  white-space: nowrap;
+  display: flex;   
+  flex-wrap: nowrap;
+  width: 100%;
+  text-align: center;
+  padding: 15px;
+  box-sizing: border-box;
+  height:750px;
+  justify-content: space-around;
+}
+
+
+        </style>
+        <script>
+          const loginForm = document.getElementsByClassName("loginform");
+          const loginButton = document.getElementById("login_form_submit");
+          
+
+          loginButton.addEventListener("click", (e) => {
+          e.preventDefault();
+          const username = loginForm.username.value;
+          const password = loginForm.password.value;
+
+           if (username === "user" && password === "webdev") {
+               alert("You have successfully logged in.");
+               window.location = "index.html";
+             } else {
+              alert("Hello! I am an alert box!");
+    }
+})
+        </script>
+    </header>
+    <body>
+      <div class="flex-container">
+        <div class="flex_child">
+          <div class="loginform">
+        <form action="index.html" method="post">
+        
+          
+            <div class="container">
+              <label for="uname"><b>Username</b></label> <br>
+              <input type="text" placeholder="Enter Username" name="uname" required>
+          <br>  
+              <label for="psw"><b>Password</b></label>
+            <br>
+              <input type="password" placeholder="Enter Password" name="psw" required>
+          <br>
+              <button class="login_form_submit" type="submit">Login</button>
+              <br>
+              <label>
+                <input type="checkbox" checked="checked" name="remember"> Remember me
+              </label>
+            </div>
+          
+            <div class="container">
+            
+              <span class="psw">Forgot <a href="#">password?</a></span>
+            </div>
+          </div>
+          </form>
+        </div>
+          <div class="flex_child" >
+            <img src="C:\Users\dimas\Downloads\illustration.png" >
+          </div>
+        </div>
+
+          
+    </body>
+</html>
