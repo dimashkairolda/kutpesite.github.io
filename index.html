@@ -2,6 +2,9 @@
 <!DOCTYPE html>
 
 <html>
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+</head>
 <title>Kutpe KZ</title>
 <style>
 *{
@@ -23,12 +26,20 @@
 
     }
     .bbox{
-        padding-top: 10%;
-        padding-left: 35%;
-        height: 40%;
-        width: 20%;
-       
-        
+        padding-top: 5%;
+        padding-left: 5%;
+        height: 60%;
+        width: 60%;
+    }
+
+    .delete_btn{
+      border: none;
+      outline: none;
+    }
+
+    .update_btn{
+      border: none;
+      outline: none;
     }
 
     .dropbtn {
@@ -127,41 +138,195 @@ li a:hover:not(.active) {
 
 
 </style>
-<script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-analytics.js";
-    import { getDatabase , ref} from "firebase/database";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
-  
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-      apiKey: "AIzaSyAtp86S0T2BNVUUdgjeDltaZEP1u2MsvHc",
-      authDomain: "kutpe-kz.firebaseapp.com",
-      databaseURL: "https://kutpe-kz-default-rtdb.firebaseio.com",
-      projectId: "kutpe-kz",
-      storageBucket: "kutpe-kz.appspot.com",
-      messagingSenderId: "760528812857",
-      appId: "1:760528812857:web:2fa9b7ccdea76b6c9946e8",
-      measurementId: "G-1SR0FR7BFS"
-    };
-  
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
+<script type="module" id="script" class="main">
 
-            const db = getDatabase();
-            const carWashNames = ref(db, '/car-washes/' + 0 + '/name');
-            log(carWashNames);
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, getDocs, collection, deleteDoc} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAtp86S0T2BNVUUdgjeDltaZEP1u2MsvHc",
+    authDomain: "kutpe-kz.firebaseapp.com",
+    databaseURL: "https://kutpe-kz-default-rtdb.firebaseio.com",
+    projectId: "kutpe-kz",
+    storageBucket: "kutpe-kz.appspot.com",
+    messagingSenderId: "760528812857",
+    appId: "1:760528812857:web:2fa9b7ccdea76b6c9946e8",
+    measurementId: "G-1SR0FR7BFS"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const firestore = getFirestore();
+  const usersCol = collection(firestore, 'users');
+  const carWashesCol = collection(firestore, 'car-washes');
+
+  getUser()
+  //getCarWashes()
+
+  var userBtn = document.getElementById("showUsers");
+  var carWashesBtn = document.getElementById("showCarWashes");
+
+  userBtn.addEventListener('click', getUser)
+  carWashesBtn.addEventListener('click', getCarWashes);
+
+  async function getUser(){
+    await (document.getElementById('cols').replaceChildren());
+    await document.getElementById('user').replaceChildren();
+    getDocs(usersCol).then((snapshot) => {
+      let users = []
+      let car_washes = []
+      var col = document.getElementById('cols');
+      var thId = document.createElement('th');
+      var thName = document.createElement('th');
+      var thPhone = document.createElement('th');
+      var thCreatedAt = document.createElement('th');
+      var thBookingTimes = document.createElement('th');
+      thId.innerHTML = "#"; thName.innerHTML = "Имя"; thPhone.innerHTML = "Телефон"; thCreatedAt.innerHTML = "Аккаунт создан"; thBookingTimes.innerHTML = "Количество броней";
+      col.appendChild(thId); col.appendChild(thName); col.appendChild(thPhone); col.appendChild(thCreatedAt); col.appendChild(thBookingTimes);
+
+      snapshot.docs.forEach((doc) => {
+        var phone = doc.data().phoneNumber;
+        users.push({...doc.data(), id: doc.id});
+        var userTbody = document.getElementById("user");
+        var tRow = document.createElement("tr");
+        var tdId = document.createElement("td");
+        var tdName = document.createElement("td");
+        var tdPhone = document.createElement("td");
+        var tdCreatedAt = document.createElement("td");
+        var tdBookingTimes = document.createElement("td");
+  
+        tdId.innerHTML = users.length;
+        tdName.innerHTML = doc.data().name;
+        tdPhone.innerHTML = doc.data().phoneNumber;
+
+        let map = new Map(Object.entries(doc.data().history));
+
+        tdBookingTimes.innerHTML = map.get("addresses").length;
+
+        let seconds = parseInt(doc.data().createdAt);
+        let date = new Date(seconds).toLocaleString('ru-RU', { timeZone: 'UTC' })
+
+        tdCreatedAt.innerHTML = date;
+
+
+        tRow.appendChild(tdId); tRow.appendChild(tdName); tRow.appendChild(tdPhone); tRow.appendChild(tdCreatedAt);  tRow.appendChild(tdBookingTimes);
+        userTbody.appendChild(tRow);
+      }) 
+    }).catch(err => {
+      console.log(err.message)
+    })
+  }
+
+    async function getCarWashes(){
+      await (document.getElementById('cols').replaceChildren());
+      await document.getElementById('user').replaceChildren();
+      getDocs(carWashesCol).then((snapshot) => {
+        let car_washes = []
+
+        var col = document.getElementById('cols');
+        var thId = document.createElement('th');
+        var thName = document.createElement('th');
+        var thAddress = document.createElement('th');
+        var thPhone = document.createElement('th');
+        var thWeekDay = document.createElement('th');
+        var thWeekEnd = document.createElement('th');
+        var thLat = document.createElement('th');
+        var thLong = document.createElement('th');
+        thId.innerHTML = "#"; thName.innerHTML = "Название"; thAddress.innerHTML = "Адресс"; thPhone.innerHTML = "Телефон"; thWeekDay.innerHTML = "Будни"; thWeekEnd.innerHTML = "Выходные"; thLat.innerHTML = "Широта"; thLong.innerHTML = "Долгота";
+        col.appendChild(thId); col.appendChild(thName); col.appendChild(thAddress); col.appendChild(thPhone); col.appendChild(thWeekDay); col.appendChild(thWeekEnd); col.appendChild(thLat); col.appendChild(thLong); 
+
+        snapshot.docs.forEach((doc) => {
+        car_washes.push({...doc.data(), id: doc.id})
+        //var dropDown = document.getElementById('drop-down')
+        var carWashTbody = document.getElementById("user");
+        var tRow = document.createElement("tr");
+        var tdId = document.createElement("td");
+        var tdName = document.createElement("td");
+        var tdAddress = document.createElement("td");
+        var tdPhone = document.createElement("td");
+        var tdWeekday = document.createElement("td");
+        var tdWeekend = document.createElement("td");
+        var tdLat = document.createElement("td");
+        var tdLong = document.createElement("td");
+
+        var tdDeleteButton = document.createElement("button");
+        tdDeleteButton.className = "delete_btn";
+        tdDeleteButton.onclick = function(){removeData(doc.id, false, tdName.innerHTML, doc.data().uid)};
+        tdDeleteButton.innerHTML = '<i class="fa fa-trash"></i>';
+
+        var tdUpdateButton = document.createElement("button");
+        tdUpdateButton.className = "update_btn";
+        tdUpdateButton.onclick = function(){updateData(doc.id, false, doc.data())};
+        tdUpdateButton.innerHTML = '<i class="fa fa-edit"></i>';
+
+
+        tdId.innerHTML = car_washes.length;
+        tdName.innerHTML = doc.data().name;
+        tdAddress.innerHTML = doc.data().address;
+        tdPhone.innerHTML = doc.data().phoneNumber;
+        tdWeekday.innerHTML = doc.data().weekDayHours;
+        tdWeekend.innerHTML = doc.data().weekEndHours;
+        tdLat.innerHTML = doc.data().latitude;
+        tdLong.innerHTML = doc.data().longitude;
+        tRow.appendChild(tdId); tRow.appendChild(tdName); tRow.appendChild(tdAddress); tRow.appendChild(tdPhone); tRow.appendChild(tdWeekday); tRow.appendChild(tdWeekend); tRow.appendChild(tdLat); tRow.appendChild(tdLong); 
+        
+        tRow.appendChild(tdUpdateButton); tRow.appendChild(tdDeleteButton);
+        carWashTbody.appendChild(tRow);
+        }) 
+      }).catch(err => {
+        console.log(err.message)
+      })
+    }
+
+    function removeData(id, isUser, name, uid){
+      if(confirm("Вы действительно хотите удалить " + (isUser ? "Пользователя" : "Автомойку") + ": " + name)){
+        console.log("Ok")
+        deleteDoc(doc(firestore, (isUser ? "users" : "car-washes"), uid)).then(()=>alert("Успешно удалено")).catch((error) => alert("Ошибка: " + error));
+      }
+      else console.log("Cancel");
+    }
+
+    function updateData(id, isUser, data){
+      var div = document.getElementById("updateDiv");
+      div.replaceChildren();
+      var form = document.createElement("form");
+      if(isUser){
+        form.innerHTML += "<label for=\"name\">Имя:</label><br>";
+        form.innerHTML += "<input type=\"text\" id=\"name\" name=\"name\"><br>";
+        form.innerHTML += "<label for=\"phone\">Телефон:</label><br>";
+        form.innerHTML += "<input type=\"text\" id=\"phone\" name=\"phone\"><br>";
+        form.innerHTML += "<label for=\"created\">Аккаунт создан:</label><br>";
+        form.innerHTML += "<input type=\"text\" id=\"created\" name=\"created\"><br>";
+        form.innerHTML += "<label for=\"bookings\">Количество броней:</label><br>";
+        form.innerHTML += "<input type=\"text\" id=\"bookings\" name=\"bookings\"><br>";
+      }
+      else{
+        form.innerHTML += "<label for=\"name\">Имя:</label><br>";
+        form.innerHTML += "<input type=\"text\" id=\"name\" name=\"name\"><br>";
+        form.innerHTML += "<label for=\"address\">Адресс:</label><br>";
+        form.innerHTML += "<input type=\"text\" id=\"address\" name=\"address\"><br>";
+        form.innerHTML += "<label for=\"phone\">Телефон:</label><br>";
+        form.innerHTML += "<input type=\"text\" id=\"phone\" name=\"phone\"><br>";
+        form.innerHTML += "<label for=\"weekday\">Будни:</label><br>";
+        form.innerHTML += "<input type=\"text\" id=\"weekday\" name=\"weekday\"><br>";
+        form.innerHTML += "<label for=\"weekend\">Выходные:</label><br>";
+        form.innerHTML += "<input type=\"text\" id=\"weekend\" name=\"weekend\"><br>";
+        form.innerHTML += "<label for=\"lat\">Широта:</label><br>";
+        form.innerHTML += "<input type=\"text\" id=\"lat\" name=\"lat\"><br>";
+        form.innerHTML += "<label for=\"long\">Долгота:</label><br>";
+        form.innerHTML += "<input type=\"text\" id=\"long\" name=\"long\"><br>";
+      }
+      form.innerHTML += "<input type=\"submit\" value=\"Сохранить\">";
+      div.appendChild(form);
+    }
     </script>
 <body>
   
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
   <header>
     <ul>
       <li style="float:left"><a href="#home">Kutpe KZ</a></li>
-      <li><a href="#news">User</a></li>
+      <li><a href="data_edit.html">User</a></li>
       <li><a href="#contact">Logout</a></li>
      
     </ul>
@@ -170,78 +335,21 @@ li a:hover:not(.active) {
 
 
 <section class="bbox">
-    <div class="dropdown">
-        <button class="dropbtn">Dropdown</button>
-        <div class="dropdown-content">
-        <a href="#">Link 1</a>
-        <a href="#">Link 2</a>
-        <a href="#">Link 3</a>
-        </div>
-      </div>
-    <div class="box">
-        <table>
-            <tr>
-                <th>Company</th>
-                <th>Contact</th>
-                <th>Country</th>
-              </tr>
-              <tr>
-                <td>Alfreds Futterkiste</td>
-                <td>Maria Anders</td>
-                <td>Germany</td>
-              </tr>
-              <tr>
-                <td>Centro comercial Moctezuma</td>
-                <td>Francisco Chang</td>
-                <td>Mexico</td>
-              </tr>
-              <tr>
-                <td>Alfreds Futterkiste</td>
-                <td>Maria Anders</td>
-                <td>Germany</td>
-              </tr>
-              <tr>
-                <td>Centro comercial Moctezuma</td>
-                <td>Francisco Chang</td>
-                <td>Mexico</td>
-              </tr>
-              <tr>
-                <td>Alfreds Futterkiste</td>
-                <td>Maria Anders</td>
-                <td>Germany</td>
-              </tr>
-              <tr>
-                <td>Centro comercial Moctezuma</td>
-                <td>Francisco Chang</td>
-                <td>Mexico</td>
-              </tr>
-              <tr>
-                <td>Alfreds Futterkiste</td>
-                <td>Maria Anders</td>
-                <td>Germany</td>
-              </tr>
-              <tr>
-                <td>Centro comercial Moctezuma</td>
-                <td>Francisco Chang</td>
-                <td>Mexico</td>
-              </tr>
-              <tr>
-                <td>Alfreds Futterkiste</td>
-                <td>Maria Anders</td>
-                <td>Germany</td>
-              </tr>
-              <tr>
-                <td>Centro comercial Moctezuma</td>
-                <td>Francisco Chang</td>
-                <td>Mexico</td>
-              </tr>
-        </table>
-        </div>
-        <div class="btn-group">
-            <button class="button">Button</button>
-            <button class="button">Button</button>
-        
-          </div>
+  <div class="btn-group">
+    <button class="button" id="showUsers" >Пользователи</button>
+    <button class="button" id="showCarWashes">Автомойки</button>
+  </div>
+  <div class="box">
+    <table class="table table-stripped">
+      <thead>
+        <tr id="cols"></tr>
+      </thead>
+      <tbody id="user"></tbody>
+    </table>
+  </div>
+  <div id="updateDiv"></div>
+  <div id="addDiv"></div>
+
     </section>
 
 </body>
