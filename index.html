@@ -138,10 +138,10 @@ li a:hover:not(.active) {
 
 
 </style>
-<script type="module" id="script" class="main">
+<script type="module">
 
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, getDocs, collection, deleteDoc} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, getDocs, collection, deleteDoc, updateDoc, setDoc} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAtp86S0T2BNVUUdgjeDltaZEP1u2MsvHc",
@@ -289,6 +289,8 @@ li a:hover:not(.active) {
       var div = document.getElementById("updateDiv");
       div.replaceChildren();
       var form = document.createElement("form");
+      var btn = document.createElement("button");
+      btn.innerHTML = "Сохранить";
       if(isUser){
         form.innerHTML += "<label for=\"name\">Имя:</label><br>";
         form.innerHTML += "<input type=\"text\" id=\"name\" name=\"name\"><br>";
@@ -298,6 +300,7 @@ li a:hover:not(.active) {
         form.innerHTML += "<input type=\"text\" id=\"created\" name=\"created\"><br>";
         form.innerHTML += "<label for=\"bookings\">Количество броней:</label><br>";
         form.innerHTML += "<input type=\"text\" id=\"bookings\" name=\"bookings\"><br>";
+        
       }
       else{
         form.innerHTML += "<label for=\"name\">Имя:</label><br>";
@@ -314,9 +317,30 @@ li a:hover:not(.active) {
         form.innerHTML += "<input type=\"text\" id=\"lat\" name=\"lat\"><br>";
         form.innerHTML += "<label for=\"long\">Долгота:</label><br>";
         form.innerHTML += "<input type=\"text\" id=\"long\" name=\"long\"><br>";
+        //btn.onclick = saveCarWash(data);
       }
-      form.innerHTML += "<input type=\"submit\" value=\"Сохранить\">";
+      form.appendChild(btn);
       div.appendChild(form);
+      if(isUser){
+        var name = document.getElementById("name").placeholder = data.name;
+      }
+      var name = document.getElementById("name").placeholder = data.name;
+      var address = document.getElementById("address").placeholder = data.address;
+      var address = document.getElementById("phone").placeholder = data.phoneNumber;
+      var address = document.getElementById("weekday").placeholder = data.weekDayHours;
+      var address = document.getElementById("weekend").placeholder = data.weekEndHours;
+      var address = document.getElementById("lat").placeholder = data.latitude;
+      var address = document.getElementById("long").placeholder = data.longitude;
+      btn.addEventListener('click', saveUser);
+    }
+
+    function saveUser(){
+      name = document.getElementById("name").placeholder;
+      console.log("Save");
+      // SAVE DATA
+      //updateDoc(doc(firestore, "users", data.uid), {
+        
+      //});
     }
     </script>
 <body>
