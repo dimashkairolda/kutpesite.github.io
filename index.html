@@ -141,7 +141,8 @@ li a:hover:not(.active) {
 <script type="module">
 
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, getDocs, collection, deleteDoc, updateDoc, setDoc} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, getDocs, collection, deleteDoc, updateDoc, addDoc, setDoc} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js";
+  import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAtp86S0T2BNVUUdgjeDltaZEP1u2MsvHc",
@@ -155,6 +156,7 @@ li a:hover:not(.active) {
   };
 
   const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
   const firestore = getFirestore();
   const usersCol = collection(firestore, 'users');
   const carWashesCol = collection(firestore, 'car-washes');
@@ -165,8 +167,103 @@ li a:hover:not(.active) {
   var userBtn = document.getElementById("showUsers");
   var carWashesBtn = document.getElementById("showCarWashes");
 
-  userBtn.addEventListener('click', getUser)
-  carWashesBtn.addEventListener('click', getCarWashes);
+  userBtn.addEventListener('click', function(){
+    var div = document.getElementById("updateDiv");
+    div.replaceChildren();
+    getUser();
+  })
+  carWashesBtn.addEventListener('click', function(){
+    var div = document.getElementById("updateDiv");
+    div.replaceChildren();
+    getCarWashes()
+  });
+
+
+  async function addUser(){
+    var div = document.getElementById("addDiv");
+    div.replaceChildren();
+    var form = document.createElement("form");
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.innerHTML = "Добавить Пользователя";
+    var secs = new Date().getTime();
+    console.log(secs);
+
+    form.innerHTML += "<label for=\"name\">Имя:</label><br>";
+    form.innerHTML += "<input type=\"text\" id=\"name\" name=\"name\"><br>";
+    form.innerHTML += "<label for=\"phone\">Телефон:</label><br>";
+    form.innerHTML += "<input type=\"text\" id=\"phone\" name=\"phone\"><br>";
+
+    div.appendChild(form); div.appendChild(btn);
+
+    btn.addEventListener('click', async function(){
+      const user = await addDoc(collection(firestore,"users"), {
+        createdAt : secs,
+        name : form.name.value,
+        phoneNumber : form.phone.value,
+        profilePicture : ""
+      })
+
+      updateDoc(doc(firestore, "users", user.id), {
+        uid : user.id
+      }).then(() => {
+        alert("Успешно добавлено");
+        window.location.reload();
+      }).catch((error) => {
+        alert(error.message);
+        window.location.reload();
+      })
+    });
+  }
+
+  function addCarWash(){
+    var div = document.getElementById("addDiv");
+    div.replaceChildren();
+    var form = document.createElement("form");
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.innerHTML = "Добавить Автомойку";
+
+    form.innerHTML += "<label for=\"name\">Имя:</label><br>";
+    form.innerHTML += "<input type=\"text\" id=\"name\" name=\"name\"><br>";
+    form.innerHTML += "<label for=\"address\">Адресс:</label><br>";
+    form.innerHTML += "<input type=\"text\" id=\"address\" name=\"address\"><br>";
+    form.innerHTML += "<label for=\"phone\">Телефон:</label><br>";
+    form.innerHTML += "<input type=\"text\" id=\"phone\" name=\"phone\"><br>";
+    form.innerHTML += "<label for=\"weekday\">Будни:</label><br>";
+    form.innerHTML += "<input type=\"text\" id=\"weekday\" name=\"weekday\"><br>";
+    form.innerHTML += "<label for=\"weekend\">Выходные:</label><br>";
+    form.innerHTML += "<input type=\"text\" id=\"weekend\" name=\"weekend\"><br>";
+    form.innerHTML += "<label for=\"lat\">Широта:</label><br>";
+    form.innerHTML += "<input type=\"text\" id=\"lat\" name=\"lat\"><br>";
+    form.innerHTML += "<label for=\"long\">Долгота:</label><br>";
+    form.innerHTML += "<input type=\"text\" id=\"long\" name=\"long\"><br>";
+
+    div.appendChild(form); div.appendChild(btn);
+
+    btn.addEventListener('click', async function(){
+      const carwash = await addDoc(collection(firestore,"car-washes"), {
+        address : form.address.value,
+        name : form.name.value,
+        phoneNumber : form.phone.value,
+        latitude : form.lat.value,
+        longitude : form.long.value,
+        photoURL : "",
+        weekDayHours : form.weekday.value,
+        weekEndHours : form.weekend.value,
+      })
+
+      updateDoc(doc(firestore, "car-washes", carwash.id), {
+        uid : carwash.id
+      }).then(() => {
+        alert("Успешно добавлено");
+        window.location.reload();
+      }).catch((error) => {
+        alert(error.message);
+        window.location.reload();
+      })
+    });
+  }
 
   async function getUser(){
     await (document.getElementById('cols').replaceChildren());
@@ -174,6 +271,8 @@ li a:hover:not(.active) {
     getDocs(usersCol).then((snapshot) => {
       let users = []
       let car_washes = []
+      var addBtn = document.getElementById('add');
+      addBtn.addEventListener('click', function(){addUser()});
       var col = document.getElementById('cols');
       var thId = document.createElement('th');
       var thName = document.createElement('th');
@@ -207,8 +306,19 @@ li a:hover:not(.active) {
 
         tdCreatedAt.innerHTML = date;
 
+        var tdDeleteButton = document.createElement("button");
+        tdDeleteButton.className = "delete_btn";
+        tdDeleteButton.onclick = function(){removeData(true, tdName.innerHTML, doc.data().uid)};
+        tdDeleteButton.innerHTML = '<i class="fa fa-trash"></i>';
+
+        var tdUpdateButton = document.createElement("button");
+        tdUpdateButton.className = "update_btn";
+        tdUpdateButton.onclick = function(){updateData(doc.id, true, doc.data())};
+        tdUpdateButton.innerHTML = '<i class="fa fa-edit"></i>';
 
         tRow.appendChild(tdId); tRow.appendChild(tdName); tRow.appendChild(tdPhone); tRow.appendChild(tdCreatedAt);  tRow.appendChild(tdBookingTimes);
+        tRow.appendChild(tdUpdateButton); tRow.appendChild(tdDeleteButton);
+
         userTbody.appendChild(tRow);
       }) 
     }).catch(err => {
@@ -216,93 +326,131 @@ li a:hover:not(.active) {
     })
   }
 
-    async function getCarWashes(){
-      await (document.getElementById('cols').replaceChildren());
-      await document.getElementById('user').replaceChildren();
-      getDocs(carWashesCol).then((snapshot) => {
-        let car_washes = []
+  async function getCarWashes(){
+    await (document.getElementById('cols').replaceChildren());
+    await document.getElementById('user').replaceChildren();
+    getDocs(carWashesCol).then((snapshot) => {
+      let car_washes = []
+      var addBtn = document.getElementById('add');
+      addBtn.addEventListener('click', function(){addCarWash()});
 
-        var col = document.getElementById('cols');
-        var thId = document.createElement('th');
-        var thName = document.createElement('th');
-        var thAddress = document.createElement('th');
-        var thPhone = document.createElement('th');
-        var thWeekDay = document.createElement('th');
-        var thWeekEnd = document.createElement('th');
-        var thLat = document.createElement('th');
-        var thLong = document.createElement('th');
-        thId.innerHTML = "#"; thName.innerHTML = "Название"; thAddress.innerHTML = "Адресс"; thPhone.innerHTML = "Телефон"; thWeekDay.innerHTML = "Будни"; thWeekEnd.innerHTML = "Выходные"; thLat.innerHTML = "Широта"; thLong.innerHTML = "Долгота";
-        col.appendChild(thId); col.appendChild(thName); col.appendChild(thAddress); col.appendChild(thPhone); col.appendChild(thWeekDay); col.appendChild(thWeekEnd); col.appendChild(thLat); col.appendChild(thLong); 
+      var col = document.getElementById('cols');
+      var thId = document.createElement('th');
+      var thName = document.createElement('th');
+      var thAddress = document.createElement('th');
+      var thPhone = document.createElement('th');
+      var thWeekDay = document.createElement('th');
+      var thWeekEnd = document.createElement('th');
+      var thLat = document.createElement('th');
+      var thLong = document.createElement('th');
+      thId.innerHTML = "#"; thName.innerHTML = "Название"; thAddress.innerHTML = "Адресс"; thPhone.innerHTML = "Телефон"; thWeekDay.innerHTML = "Будни"; thWeekEnd.innerHTML = "Выходные"; thLat.innerHTML = "Широта"; thLong.innerHTML = "Долгота";
+      col.appendChild(thId); col.appendChild(thName); col.appendChild(thAddress); col.appendChild(thPhone); col.appendChild(thWeekDay); col.appendChild(thWeekEnd); col.appendChild(thLat); col.appendChild(thLong); 
 
-        snapshot.docs.forEach((doc) => {
-        car_washes.push({...doc.data(), id: doc.id})
-        //var dropDown = document.getElementById('drop-down')
-        var carWashTbody = document.getElementById("user");
-        var tRow = document.createElement("tr");
-        var tdId = document.createElement("td");
-        var tdName = document.createElement("td");
-        var tdAddress = document.createElement("td");
-        var tdPhone = document.createElement("td");
-        var tdWeekday = document.createElement("td");
-        var tdWeekend = document.createElement("td");
-        var tdLat = document.createElement("td");
-        var tdLong = document.createElement("td");
+      snapshot.docs.forEach((doc) => {
+      car_washes.push({...doc.data(), id: doc.id})
+      //var dropDown = document.getElementById('drop-down')
+      var carWashTbody = document.getElementById("user");
+      var tRow = document.createElement("tr");
+      var tdId = document.createElement("td");
+      var tdName = document.createElement("td");
+      var tdAddress = document.createElement("td");
+      var tdPhone = document.createElement("td");
+      var tdWeekday = document.createElement("td");
+      var tdWeekend = document.createElement("td");
+      var tdLat = document.createElement("td");
+      var tdLong = document.createElement("td");
 
-        var tdDeleteButton = document.createElement("button");
-        tdDeleteButton.className = "delete_btn";
-        tdDeleteButton.onclick = function(){removeData(doc.id, false, tdName.innerHTML, doc.data().uid)};
-        tdDeleteButton.innerHTML = '<i class="fa fa-trash"></i>';
+      var tdDeleteButton = document.createElement("button");
+      tdDeleteButton.className = "delete_btn";
+      tdDeleteButton.onclick = function(){removeData(false, tdName.innerHTML, doc.data().uid)};
+      tdDeleteButton.innerHTML = '<i class="fa fa-trash"></i>';
 
-        var tdUpdateButton = document.createElement("button");
-        tdUpdateButton.className = "update_btn";
-        tdUpdateButton.onclick = function(){updateData(doc.id, false, doc.data())};
-        tdUpdateButton.innerHTML = '<i class="fa fa-edit"></i>';
+      var tdUpdateButton = document.createElement("button");
+      tdUpdateButton.className = "update_btn";
+      tdUpdateButton.onclick = function(){updateData(doc.id, false, doc.data())};
+      tdUpdateButton.innerHTML = '<i class="fa fa-edit"></i>';
 
 
-        tdId.innerHTML = car_washes.length;
-        tdName.innerHTML = doc.data().name;
-        tdAddress.innerHTML = doc.data().address;
-        tdPhone.innerHTML = doc.data().phoneNumber;
-        tdWeekday.innerHTML = doc.data().weekDayHours;
-        tdWeekend.innerHTML = doc.data().weekEndHours;
-        tdLat.innerHTML = doc.data().latitude;
-        tdLong.innerHTML = doc.data().longitude;
-        tRow.appendChild(tdId); tRow.appendChild(tdName); tRow.appendChild(tdAddress); tRow.appendChild(tdPhone); tRow.appendChild(tdWeekday); tRow.appendChild(tdWeekend); tRow.appendChild(tdLat); tRow.appendChild(tdLong); 
-        
-        tRow.appendChild(tdUpdateButton); tRow.appendChild(tdDeleteButton);
-        carWashTbody.appendChild(tRow);
-        }) 
-      }).catch(err => {
-        console.log(err.message)
-      })
+      tdId.innerHTML = car_washes.length;
+      tdName.innerHTML = doc.data().name;
+      tdAddress.innerHTML = doc.data().address;
+      tdPhone.innerHTML = doc.data().phoneNumber;
+      tdWeekday.innerHTML = doc.data().weekDayHours;
+      tdWeekend.innerHTML = doc.data().weekEndHours;
+      tdLat.innerHTML = doc.data().latitude;
+      tdLong.innerHTML = doc.data().longitude;
+      tRow.appendChild(tdId); tRow.appendChild(tdName); tRow.appendChild(tdAddress); tRow.appendChild(tdPhone); tRow.appendChild(tdWeekday); tRow.appendChild(tdWeekend); tRow.appendChild(tdLat); tRow.appendChild(tdLong); 
+      
+      tRow.appendChild(tdUpdateButton); tRow.appendChild(tdDeleteButton);
+      carWashTbody.appendChild(tRow);
+      }) 
+    }).catch(err => {
+      console.log(err.message)
+    })
+  }
+
+    function removeData(isUser, name, uid){
+      if(confirm("Вы действительно хотите удалить " + (isUser ? "Пользователя" : "Автомойку") + ": " + name)){
+        deleteDoc(doc(firestore, (isUser ? "users" : "car-washes"), uid)).then(()=> {
+          alert("Успешно удалено");
+          window.location.reload();
+        }).catch((error) => alert("Ошибка: " + error));
+      }
+      else {
+
+      }
     }
 
-    function removeData(id, isUser, name, uid){
-      if(confirm("Вы действительно хотите удалить " + (isUser ? "Пользователя" : "Автомойку") + ": " + name)){
-        console.log("Ok")
-        deleteDoc(doc(firestore, (isUser ? "users" : "car-washes"), uid)).then(()=>alert("Успешно удалено")).catch((error) => alert("Ошибка: " + error));
-      }
-      else console.log("Cancel");
+    function updateCarWash(data){
+      var form = document.getElementById("updateForm");
+      updateDoc(doc(firestore, "car-washes", data.uid), {
+        name: form.name.value,
+        phoneNumber: form.phone.value,
+        address: form.address.value,
+        weekDayHours: form.weekday.value,
+        weekEndHours: form.weekend.value,
+        latitude: form.lat.value,
+        longitude: form.long.value,
+      }).then(() =>{
+        alert("Успешно сохранено!");
+        window.location.reload();
+        })
+        .catch((error) =>{
+          alert(error.message);
+          window.location.reload();
+        }
+      );
+    }
+
+    function updateUser(data){
+      var form = document.getElementById("updateForm");
+      updateDoc(doc(firestore, "users", data.uid), {
+        name: form.name.value,
+        phoneNumber: form.phone.value
+      }).then(() =>{
+        alert("Успешно сохранено!");
+        window.location.reload();
+        })
+        .catch((error) =>{
+          alert(error.message);
+          window.location.reload();
+        }
+      );
     }
 
     function updateData(id, isUser, data){
       var div = document.getElementById("updateDiv");
       div.replaceChildren();
       var form = document.createElement("form");
-      var btn = document.createElement("button");
-      btn.innerHTML = "Сохранить";
+      form.id = "updateForm";
       if(isUser){
         form.innerHTML += "<label for=\"name\">Имя:</label><br>";
         form.innerHTML += "<input type=\"text\" id=\"name\" name=\"name\"><br>";
         form.innerHTML += "<label for=\"phone\">Телефон:</label><br>";
         form.innerHTML += "<input type=\"text\" id=\"phone\" name=\"phone\"><br>";
-        form.innerHTML += "<label for=\"created\">Аккаунт создан:</label><br>";
-        form.innerHTML += "<input type=\"text\" id=\"created\" name=\"created\"><br>";
-        form.innerHTML += "<label for=\"bookings\">Количество броней:</label><br>";
-        form.innerHTML += "<input type=\"text\" id=\"bookings\" name=\"bookings\"><br>";
-        
       }
       else{
+        btn = document.getElementById("updateCarWashBtn");
         form.innerHTML += "<label for=\"name\">Имя:</label><br>";
         form.innerHTML += "<input type=\"text\" id=\"name\" name=\"name\"><br>";
         form.innerHTML += "<label for=\"address\">Адресс:</label><br>";
@@ -317,30 +465,28 @@ li a:hover:not(.active) {
         form.innerHTML += "<input type=\"text\" id=\"lat\" name=\"lat\"><br>";
         form.innerHTML += "<label for=\"long\">Долгота:</label><br>";
         form.innerHTML += "<input type=\"text\" id=\"long\" name=\"long\"><br>";
-        //btn.onclick = saveCarWash(data);
+        //btn.addEventListener('click', saveUser);
       }
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.innerHTML = "Сохранить";
       form.appendChild(btn);
+      btn.addEventListener('click', isUser ? function(){updateUser(data)} : function(){updateCarWash(data)});
       div.appendChild(form);
       if(isUser){
-        var name = document.getElementById("name").placeholder = data.name;
+        form.name.value = data.name;
+        form.phone.value = data.phoneNumber;
       }
-      var name = document.getElementById("name").placeholder = data.name;
-      var address = document.getElementById("address").placeholder = data.address;
-      var address = document.getElementById("phone").placeholder = data.phoneNumber;
-      var address = document.getElementById("weekday").placeholder = data.weekDayHours;
-      var address = document.getElementById("weekend").placeholder = data.weekEndHours;
-      var address = document.getElementById("lat").placeholder = data.latitude;
-      var address = document.getElementById("long").placeholder = data.longitude;
-      btn.addEventListener('click', saveUser);
-    }
+      else{
+        form.name.value = data.name;
+        form.address.value = data.address;
+        form.phone.value = data.phoneNumber;
+        form.weekday.value = data.weekDayHours;
+        form.weekend.value = data.weekEndHours;
+        form.lat.value = data.latitude;
+        form.long.value = data.longitude;
 
-    function saveUser(){
-      name = document.getElementById("name").placeholder;
-      console.log("Save");
-      // SAVE DATA
-      //updateDoc(doc(firestore, "users", data.uid), {
-        
-      //});
+      }
     }
     </script>
 <body>
@@ -362,6 +508,7 @@ li a:hover:not(.active) {
   <div class="btn-group">
     <button class="button" id="showUsers" >Пользователи</button>
     <button class="button" id="showCarWashes">Автомойки</button>
+    <button class="button" id="add">Добавить</button>
   </div>
   <div class="box">
     <table class="table table-stripped">

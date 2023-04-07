@@ -15,7 +15,6 @@ input[type=text], input[type=password] {
   display: inline-block;
   border: 1px solid #ccc;
   box-sizing: border-box;
-  
 }
 
 /* Set a style for all buttons */
@@ -26,21 +25,13 @@ button {
   margin: 8px 0;
   border: none;
   cursor: pointer;
-  width: 100%;
-           
-
-         
+  width: 100%;         
 }
 
 /* Add a hover effect for buttons */
 button:hover {
   opacity: 0.8;
 }
-
-
-
-
-
 
 /* Add padding to containers */
 .container {
@@ -73,60 +64,72 @@ span.psw {
 }
 
 
-        </style>
-        <script>
-          const loginForm = document.getElementsByClassName("loginform");
-          const loginButton = document.getElementById("login_form_submit");
-          
+</style>
+<script type="module">
+  import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
 
-          loginButton.addEventListener("click", (e) => {
-          e.preventDefault();
-          const username = loginForm.username.value;
-          const password = loginForm.password.value;
+  const firebaseConfig = {
+    apiKey: "AIzaSyAtp86S0T2BNVUUdgjeDltaZEP1u2MsvHc",
+    authDomain: "kutpe-kz.firebaseapp.com",
+    databaseURL: "https://kutpe-kz-default-rtdb.firebaseio.com",
+    projectId: "kutpe-kz",
+    storageBucket: "kutpe-kz.appspot.com",
+    messagingSenderId: "760528812857",
+    appId: "1:760528812857:web:2fa9b7ccdea76b6c9946e8",
+    measurementId: "G-1SR0FR7BFS"
+  };
 
-           if (username === "user" && password === "webdev") {
-               alert("You have successfully logged in.");
-               window.location = "index.html";
-             } else {
-              alert("Hello! I am an alert box!");
-    }
-})
-        </script>
-    </header>
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+
+  const loginButton = document.getElementById("login");
+  
+  loginButton.addEventListener("click", (e) => {
+    var email = document.getElementById("email").value;
+    var password = document.getElementById("password").value;
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        
+        window.location = "index.html";
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        alert(errorMessage);
+    });
+  })
+</script>
+</header>
     <body>
       <div class="flex-container">
         <div class="flex_child">
           <div class="loginform">
-        <form action="index.html" method="post">
-        
-          
-            <div class="container">
-              <label for="uname"><b>Username</b></label> <br>
-              <input type="text" placeholder="Enter Username" name="uname" required>
+          <div class="container">
+            <label for="uname"><b>Username</b></label> <br>
+            <input type="text" placeholder="Enter Username" name="uname" id="email" required>
           <br>  
-              <label for="psw"><b>Password</b></label>
-            <br>
-              <input type="password" placeholder="Enter Password" name="psw" required>
+            <label for="psw"><b>Password</b></label>
           <br>
-              <button class="login_form_submit" type="submit">Login</button>
-              <br>
-              <label>
-                <input type="checkbox" checked="checked" name="remember"> Remember me
-              </label>
-            </div>
-          
-            <div class="container">
-            
-              <span class="psw">Forgot <a href="#">password?</a></span>
-            </div>
+            <input type="password" placeholder="Enter Password" name="psw" id="password" required>
+          <br>
+            <button class="login" id="login">Login</button>
+          <br>
+            <label>
+              <input type="checkbox" checked="checked" name="remember"> Remember me
+            </label>
           </div>
-          </form>
-        </div>
-          <div class="flex_child" >
-            <img src="C:\Users\dimas\Downloads\illustration.png" >
+        
+          <div class="container">
+            <span class="psw">Forgot <a href="#">password?</a></span>
           </div>
         </div>
-
-          
+        </form>
+      </div>
+        <!-- <div class="flex_child" >
+          <img src="C:\Users\dimas\Downloads\illustration.png" >
+        </div> -->
+      </div>
     </body>
 </html>
