@@ -160,60 +160,80 @@ li a:hover:not(.active) {
   const firestore = getFirestore();
   const usersCol = collection(firestore, 'users');
   const carWashesCol = collection(firestore, 'car-washes');
+  const bookingsCol = collection(firestore, 'bookings');
 
-  getUser()
+  getBookings()
   //getCarWashes()
 
   var userBtn = document.getElementById("showUsers");
   var carWashesBtn = document.getElementById("showCarWashes");
+  var bookingsBtn = document.getElementById("showBookings");
+
+  function formatDate(date) {
+    const formatDate = new Date(
+        date.seconds * 1000 + date.nanoseconds / 1000000
+    );
+    return formatDate.toLocaleTimeString('ru-ru', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
 
   userBtn.addEventListener('click', function(){
     var div = document.getElementById("updateDiv");
+    div.replaceChildren();
+    div = document.getElementById("addDiv");
     div.replaceChildren();
     getUser();
   })
   carWashesBtn.addEventListener('click', function(){
     var div = document.getElementById("updateDiv");
     div.replaceChildren();
+    div = document.getElementById("addDiv");
+    div.replaceChildren();
     getCarWashes()
   });
+  bookingsBtn.addEventListener('click', function(){
+    var div = document.getElementById("updateDiv");
+    div.replaceChildren();
+    div = document.getElementById("addDiv");
+    div.replaceChildren();
+    getBookings();
+  })
 
 
   async function addUser(){
     var div = document.getElementById("addDiv");
     div.replaceChildren();
-    var form = document.createElement("form");
-    var btn = document.createElement("button");
-    btn.type = "button";
-    btn.innerHTML = "Добавить Пользователя";
-    var secs = new Date().getTime();
-    console.log(secs);
+    //var form = document.createElement("form");
+    //var btn = document.createElement("button");
+    //btn.type = "button";
+    //btn.innerHTML = "Добавить Пользователя";
+    //var secs = new Date().getTime();
+    
+    //form.innerHTML += "<label for=\"name\">Имя:</label><br>";
+    //form.innerHTML += "<input type=\"text\" id=\"name\" name=\"name\"><br>";
+    //form.innerHTML += "<label for=\"phone\">Телефон:</label><br>";
+    //form.innerHTML += "<input type=\"text\" id=\"phone\" name=\"phone\"><br>";
 
-    form.innerHTML += "<label for=\"name\">Имя:</label><br>";
-    form.innerHTML += "<input type=\"text\" id=\"name\" name=\"name\"><br>";
-    form.innerHTML += "<label for=\"phone\">Телефон:</label><br>";
-    form.innerHTML += "<input type=\"text\" id=\"phone\" name=\"phone\"><br>";
+    //div.appendChild(form); div.appendChild(btn);
 
-    div.appendChild(form); div.appendChild(btn);
+    //btn.addEventListener('click', async function(){
+      //const user = await addDoc(collection(firestore,"users"), {
+        //createdAt : secs,
+        //name : form.name.value,
+        //phoneNumber : form.phone.value,
+        //profilePicture : ""
+      //})
 
-    btn.addEventListener('click', async function(){
-      const user = await addDoc(collection(firestore,"users"), {
-        createdAt : secs,
-        name : form.name.value,
-        phoneNumber : form.phone.value,
-        profilePicture : ""
-      })
-
-      updateDoc(doc(firestore, "users", user.id), {
-        uid : user.id
-      }).then(() => {
-        alert("Успешно добавлено");
-        window.location.reload();
-      }).catch((error) => {
-        alert(error.message);
-        window.location.reload();
-      })
-    });
+      //updateDoc(doc(firestore, "users", user.id), {
+        //uid : user.id
+      //}).then(() => {
+        //alert("Успешно добавлено");
+        //window.location.reload();
+      //}).catch((error) => {
+        //alert(error.message);
+        //window.location.reload();
+      //})
+    //});
   }
 
   function addCarWash(){
@@ -226,7 +246,7 @@ li a:hover:not(.active) {
 
     form.innerHTML += "<label for=\"name\">Имя:</label><br>";
     form.innerHTML += "<input type=\"text\" id=\"name\" name=\"name\"><br>";
-    form.innerHTML += "<label for=\"address\">Адресс:</label><br>";
+    form.innerHTML += "<label for=\"address\">Адрес:</label><br>";
     form.innerHTML += "<input type=\"text\" id=\"address\" name=\"address\"><br>";
     form.innerHTML += "<label for=\"phone\">Телефон:</label><br>";
     form.innerHTML += "<input type=\"text\" id=\"phone\" name=\"phone\"><br>";
@@ -265,6 +285,71 @@ li a:hover:not(.active) {
     });
   }
 
+  async function getBookings(){
+    await (document.getElementById('cols').replaceChildren());
+    await document.getElementById('user').replaceChildren();
+    
+    getDocs(bookingsCol).then((snapshot) => {
+      let bookings = []
+      var addBtn = document.getElementById('add');
+      addBtn.hidden = true;
+      addBtn.addEventListener('click', function(){addUser()});
+
+      var col = document.getElementById('cols');
+      var thId = document.createElement('th');
+      var thAddress = document.createElement('th');
+      var thBookedTime = document.createElement('th');
+      var thBookedStart = document.createElement('th');
+      var thBookedEnd = document.createElement('th');
+      var thPhoneNumber = document.createElement('th');
+      var thUserId = document.createElement('th');
+      var thUserName = document.createElement('th');
+      var thWashName = document.createElement('th');
+
+      thId.innerHTML = "#"; thAddress.innerHTML = "Адрес"; thBookedTime.innerHTML = "Время бронирования"; thBookedStart.innerHTML = "Начало бронирования";
+      thBookedEnd.innerHTML = "Конец бронирования"; thPhoneNumber.innerHTML = "Телефон пользователя"; thUserId.innerHTML = "Id пользователя"; thUserName.innerHTML = "Имя пользователя";
+      thWashName.innerHTML = "Автомойка";
+
+      col.appendChild(thId); col.appendChild(thAddress); col.appendChild(thBookedTime); col.appendChild(thBookedStart); col.appendChild(thBookedEnd); 
+      col.appendChild(thPhoneNumber); col.appendChild(thUserId); col.appendChild(thUserName); col.appendChild(thWashName); 
+      
+      snapshot.docs.forEach((doc) => {
+        bookings.push({...doc.data(), id: doc.id})
+        var bookingTbody = document.getElementById("user");
+        var tRow = document.createElement("tr");
+        var tdId = document.createElement("td");
+        var tdAddress = document.createElement("td");
+        var tdBookedTime = document.createElement("td");
+        var tdBookedStart = document.createElement("td");
+        var tdBookedEnd = document.createElement("td");
+        var tdPhoneNumber = document.createElement("td");
+        var tdUserId = document.createElement("td");
+        var tdUserName = document.createElement("td");
+        var tdWashName = document.createElement("td");
+
+        tdId.innerHTML = bookings.length;
+        tdAddress.innerHTML = doc.data().address;
+
+        var timeStamp = {nanoseconds : doc.data().bookedTime.nanoseconds, seconds: doc.data().bookedTime.seconds}
+        tdBookedTime.innerHTML = formatDate(timeStamp);
+        timeStamp = {nanoseconds : doc.data().bookingStart.nanoseconds, seconds: doc.data().bookingStart.seconds}
+        tdBookedStart.innerHTML = formatDate(timeStamp);
+        timeStamp = {nanoseconds : doc.data().bookingEnd.nanoseconds, seconds: doc.data().bookingEnd.seconds}
+        tdBookedEnd.innerHTML = formatDate(timeStamp);
+        tdPhoneNumber.innerHTML = doc.data().phoneNumber;
+        tdUserId.innerHTML = doc.data().userId;
+        tdUserName.innerHTML = doc.data().userName;
+        tdWashName.innerHTML = doc.data().washName;
+        tRow.appendChild(tdId); tRow.appendChild(tdAddress); tRow.appendChild(tdBookedTime); tRow.appendChild(tdBookedStart); tRow.appendChild(tdBookedEnd); 
+        tRow.appendChild(tdPhoneNumber); tRow.appendChild(tdUserId); tRow.appendChild(tdUserName); tRow.appendChild(tdWashName); 
+
+        bookingTbody.appendChild(tRow);
+      }) 
+    }).catch(err => {
+      console.log(err.message)
+    })
+  }
+
   async function getUser(){
     await (document.getElementById('cols').replaceChildren());
     await document.getElementById('user').replaceChildren();
@@ -272,7 +357,7 @@ li a:hover:not(.active) {
       let users = []
       let car_washes = []
       var addBtn = document.getElementById('add');
-      addBtn.addEventListener('click', function(){addUser()});
+      addBtn.hidden = true;
       var col = document.getElementById('cols');
       var thId = document.createElement('th');
       var thName = document.createElement('th');
@@ -311,13 +396,8 @@ li a:hover:not(.active) {
         tdDeleteButton.onclick = function(){removeData(true, tdName.innerHTML, doc.data().uid)};
         tdDeleteButton.innerHTML = '<i class="fa fa-trash"></i>';
 
-        var tdUpdateButton = document.createElement("button");
-        tdUpdateButton.className = "update_btn";
-        tdUpdateButton.onclick = function(){updateData(doc.id, true, doc.data())};
-        tdUpdateButton.innerHTML = '<i class="fa fa-edit"></i>';
-
         tRow.appendChild(tdId); tRow.appendChild(tdName); tRow.appendChild(tdPhone); tRow.appendChild(tdCreatedAt);  tRow.appendChild(tdBookingTimes);
-        tRow.appendChild(tdUpdateButton); tRow.appendChild(tdDeleteButton);
+        tRow.appendChild(tdDeleteButton);
 
         userTbody.appendChild(tRow);
       }) 
@@ -332,7 +412,7 @@ li a:hover:not(.active) {
     getDocs(carWashesCol).then((snapshot) => {
       let car_washes = []
       var addBtn = document.getElementById('add');
-      addBtn.addEventListener('click', function(){addCarWash()});
+      addBtn.hidden = false;
 
       var col = document.getElementById('cols');
       var thId = document.createElement('th');
@@ -343,7 +423,7 @@ li a:hover:not(.active) {
       var thWeekEnd = document.createElement('th');
       var thLat = document.createElement('th');
       var thLong = document.createElement('th');
-      thId.innerHTML = "#"; thName.innerHTML = "Название"; thAddress.innerHTML = "Адресс"; thPhone.innerHTML = "Телефон"; thWeekDay.innerHTML = "Будни"; thWeekEnd.innerHTML = "Выходные"; thLat.innerHTML = "Широта"; thLong.innerHTML = "Долгота";
+      thId.innerHTML = "#"; thName.innerHTML = "Название"; thAddress.innerHTML = "Адрес"; thPhone.innerHTML = "Телефон"; thWeekDay.innerHTML = "Будни"; thWeekEnd.innerHTML = "Выходные"; thLat.innerHTML = "Широта"; thLong.innerHTML = "Долгота";
       col.appendChild(thId); col.appendChild(thName); col.appendChild(thAddress); col.appendChild(thPhone); col.appendChild(thWeekDay); col.appendChild(thWeekEnd); col.appendChild(thLat); col.appendChild(thLong); 
 
       snapshot.docs.forEach((doc) => {
@@ -506,8 +586,9 @@ li a:hover:not(.active) {
 
 <section class="bbox">
   <div class="btn-group">
-    <button class="button" id="showUsers" >Пользователи</button>
+    <button class="button" id="showBookings">Брони</button>
     <button class="button" id="showCarWashes">Автомойки</button>
+    <button class="button" id="showUsers" >Пользователи</button>
     <button class="button" id="add">Добавить</button>
   </div>
   <div class="box">
