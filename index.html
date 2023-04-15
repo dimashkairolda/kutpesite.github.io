@@ -382,9 +382,7 @@ li a:hover:not(.active) {
         tdName.innerHTML = doc.data().name;
         tdPhone.innerHTML = doc.data().phoneNumber;
 
-        let map = new Map(Object.entries(doc.data().history));
-
-        tdBookingTimes.innerHTML = map.get("addresses").length;
+        tdBookingTimes.innerHTML = doc.data().bookings.length;
 
         let seconds = parseInt(doc.data().createdAt);
         let date = new Date(seconds).toLocaleString('ru-RU', { timeZone: 'UTC' })
