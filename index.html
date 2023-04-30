@@ -199,44 +199,9 @@ li a:hover:not(.active) {
     getBookings();
   })
 
-
-  async function addUser(){
-    var div = document.getElementById("addDiv");
-    div.replaceChildren();
-    //var form = document.createElement("form");
-    //var btn = document.createElement("button");
-    //btn.type = "button";
-    //btn.innerHTML = "Добавить Пользователя";
-    //var secs = new Date().getTime();
-    
-    //form.innerHTML += "<label for=\"name\">Имя:</label><br>";
-    //form.innerHTML += "<input type=\"text\" id=\"name\" name=\"name\"><br>";
-    //form.innerHTML += "<label for=\"phone\">Телефон:</label><br>";
-    //form.innerHTML += "<input type=\"text\" id=\"phone\" name=\"phone\"><br>";
-
-    //div.appendChild(form); div.appendChild(btn);
-
-    //btn.addEventListener('click', async function(){
-      //const user = await addDoc(collection(firestore,"users"), {
-        //createdAt : secs,
-        //name : form.name.value,
-        //phoneNumber : form.phone.value,
-        //profilePicture : ""
-      //})
-
-      //updateDoc(doc(firestore, "users", user.id), {
-        //uid : user.id
-      //}).then(() => {
-        //alert("Успешно добавлено");
-        //window.location.reload();
-      //}).catch((error) => {
-        //alert(error.message);
-        //window.location.reload();
-      //})
-    //});
-  }
-
   function addCarWash(){
+    var div = document.getElementById("updateDiv");
+    div.replaceChildren();
     var div = document.getElementById("addDiv");
     div.replaceChildren();
     var form = document.createElement("form");
@@ -288,12 +253,12 @@ li a:hover:not(.active) {
   async function getBookings(){
     await (document.getElementById('cols').replaceChildren());
     await document.getElementById('user').replaceChildren();
+
+    var addBtn = document.getElementById("add");
+    addBtn.hidden = true;
     
     getDocs(bookingsCol).then((snapshot) => {
       let bookings = []
-      var addBtn = document.getElementById('add');
-      addBtn.hidden = true;
-      addBtn.addEventListener('click', function(){addUser()});
 
       var col = document.getElementById('cols');
       var thId = document.createElement('th');
@@ -301,17 +266,18 @@ li a:hover:not(.active) {
       var thBookedTime = document.createElement('th');
       var thBookedStart = document.createElement('th');
       var thBookedEnd = document.createElement('th');
+      var thBookId = document.createElement('th');
       var thPhoneNumber = document.createElement('th');
       var thUserId = document.createElement('th');
       var thUserName = document.createElement('th');
       var thWashName = document.createElement('th');
 
       thId.innerHTML = "#"; thAddress.innerHTML = "Адрес"; thBookedTime.innerHTML = "Время бронирования"; thBookedStart.innerHTML = "Начало бронирования";
-      thBookedEnd.innerHTML = "Конец бронирования"; thPhoneNumber.innerHTML = "Телефон пользователя"; thUserId.innerHTML = "Id пользователя"; thUserName.innerHTML = "Имя пользователя";
-      thWashName.innerHTML = "Автомойка";
+      thBookedEnd.innerHTML = "Конец бронирования"; thBookId.innerHTML = "id бронирования"; thPhoneNumber.innerHTML = "Телефон пользователя"; thUserId.innerHTML = "Id пользователя";
+      thUserName.innerHTML = "Имя пользователя"; thWashName.innerHTML = "Автомойка";
 
       col.appendChild(thId); col.appendChild(thAddress); col.appendChild(thBookedTime); col.appendChild(thBookedStart); col.appendChild(thBookedEnd); 
-      col.appendChild(thPhoneNumber); col.appendChild(thUserId); col.appendChild(thUserName); col.appendChild(thWashName); 
+      col.appendChild(thBookId); col.appendChild(thPhoneNumber); col.appendChild(thUserId); col.appendChild(thUserName); col.appendChild(thWashName); 
       
       snapshot.docs.forEach((doc) => {
         bookings.push({...doc.data(), id: doc.id})
@@ -322,6 +288,7 @@ li a:hover:not(.active) {
         var tdBookedTime = document.createElement("td");
         var tdBookedStart = document.createElement("td");
         var tdBookedEnd = document.createElement("td");
+        var tdBookId = document.createElement("td");
         var tdPhoneNumber = document.createElement("td");
         var tdUserId = document.createElement("td");
         var tdUserName = document.createElement("td");
@@ -336,12 +303,13 @@ li a:hover:not(.active) {
         tdBookedStart.innerHTML = formatDate(timeStamp);
         timeStamp = {nanoseconds : doc.data().bookingEnd.nanoseconds, seconds: doc.data().bookingEnd.seconds}
         tdBookedEnd.innerHTML = formatDate(timeStamp);
+        tdBookId.innerHTML = doc.data().bookId;
         tdPhoneNumber.innerHTML = doc.data().phoneNumber;
         tdUserId.innerHTML = doc.data().userId;
         tdUserName.innerHTML = doc.data().userName;
         tdWashName.innerHTML = doc.data().washName;
         tRow.appendChild(tdId); tRow.appendChild(tdAddress); tRow.appendChild(tdBookedTime); tRow.appendChild(tdBookedStart); tRow.appendChild(tdBookedEnd); 
-        tRow.appendChild(tdPhoneNumber); tRow.appendChild(tdUserId); tRow.appendChild(tdUserName); tRow.appendChild(tdWashName); 
+        tRow.appendChild(tdBookId); tRow.appendChild(tdPhoneNumber); tRow.appendChild(tdUserId); tRow.appendChild(tdUserName); tRow.appendChild(tdWashName); 
 
         bookingTbody.appendChild(tRow);
       }) 
@@ -411,6 +379,7 @@ li a:hover:not(.active) {
       let car_washes = []
       var addBtn = document.getElementById('add');
       addBtn.hidden = false;
+      addBtn.addEventListener('click', function(){addCarWash();});
 
       var col = document.getElementById('cols');
       var thId = document.createElement('th');
@@ -467,7 +436,7 @@ li a:hover:not(.active) {
     })
   }
 
-    function removeData(isUser, name, uid){
+  function removeData(isUser, name, uid){
       if(confirm("Вы действительно хотите удалить " + (isUser ? "Пользователя" : "Автомойку") + ": " + name)){
         deleteDoc(doc(firestore, (isUser ? "users" : "car-washes"), uid)).then(()=> {
           alert("Успешно удалено");
@@ -479,7 +448,7 @@ li a:hover:not(.active) {
       }
     }
 
-    function updateCarWash(data){
+  function updateCarWash(data){
       var form = document.getElementById("updateForm");
       updateDoc(doc(firestore, "car-washes", data.uid), {
         name: form.name.value,
@@ -500,7 +469,7 @@ li a:hover:not(.active) {
       );
     }
 
-    function updateUser(data){
+  function updateUser(data){
       var form = document.getElementById("updateForm");
       updateDoc(doc(firestore, "users", data.uid), {
         name: form.name.value,
@@ -516,7 +485,9 @@ li a:hover:not(.active) {
       );
     }
 
-    function updateData(id, isUser, data){
+  function updateData(id, isUser, data){
+      var div = document.getElementById("addDiv");
+      div.replaceChildren();
       var div = document.getElementById("updateDiv");
       div.replaceChildren();
       var form = document.createElement("form");
