@@ -251,11 +251,10 @@ li a:hover:not(.active) {
   }
 
   async function getBookings(){
-    await (document.getElementById('cols').replaceChildren());
-    await document.getElementById('user').replaceChildren();
-
     var addBtn = document.getElementById("add");
     addBtn.hidden = true;
+    await (document.getElementById('cols').replaceChildren());
+    await document.getElementById('user').replaceChildren();    
     
     getDocs(bookingsCol).then((snapshot) => {
       let bookings = []
